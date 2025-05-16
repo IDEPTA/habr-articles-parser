@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Article extends Model
 {
+    use Searchable;
+
     protected $fillable = [
         'title',
         'content',
@@ -15,4 +18,13 @@ class Article extends Model
         'tags',
         'published_at'
     ];
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'title' => $this->title ?? '',
+            'content' => $this->content ?? '',
+            'category' => $this->category ?? '',
+        ];
+    }
 }
