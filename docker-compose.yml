@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # PHP сервис для Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    volumes:
+      - .:/var/www/html  # Монтируем локальные файлы в контейнер
+    ports:
+      - "8000:8000"  # Открываем порт 8000 для Laravel
+    depends_on:
+      - db  # Сервис зависит от базы данных
+      - redis  # Сервис зависит от Redis
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+  # PostgreSQL база данных
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: parserDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"  # Открываем порт для базы
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Сохраняем данные
+
+  # Redis сервис (для очередей и кеширования)
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"  # Открываем порт для Redis
+
+volumes:
+  pgdata:
+    driver: local  # Для PostgreSQL - сохраняем данные на диске
