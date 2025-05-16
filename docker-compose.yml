@@ -1,27 +1,33 @@
 version: '3.8'
 
 services:
-  # PHP сервис для Laravel
+  # Laravel PHP-приложение
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: laravel-app
     volumes:
-      - .:/var/www/html  # Монтируем локальные файлы в контейнер
+      - .:/var/www/html
     ports:
-      - "8000:8000"  # Открываем порт 8000 для Laravel
+      - "8000:8000"
     depends_on:
-      - db  # Сервис зависит от базы данных
-      - redis  # Сервис зависит от Redis
+      - db
+      - redis
+      - elasticsearch
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_DATABASE: parserDB
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
+      ELASTICSEARCH_HOST: http://elasticsearch:9200
+    networks:
+      - app-network
 
   # PostgreSQL база данных
   db:
@@ -33,18 +39,49 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"  # Открываем порт для базы
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Сохраняем данные
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 
-  # Redis сервис (для очередей и кеширования)
+  # Redis сервис
   redis:
     image: redis:latest
     container_name: redis
     restart: always
     ports:
-      - "6379:6379"  # Открываем порт для Redis
+      - "6379:6379"
+    networks:
+      - app-network
+
+  # Elasticsearch сервис
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false  # отключаем авторизацию
+      - xpack.monitoring.collection.enabled=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # ограничиваем память
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - app-network
 
 volumes:
   pgdata:
-    driver: local  # Для PostgreSQL - сохраняем данные на диске
+    driver: local
+  esdata:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
