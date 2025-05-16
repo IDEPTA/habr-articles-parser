@@ -24,7 +24,9 @@ class Article extends Model
         return [
             'title' => $this->title ?? '',
             'content' => $this->content ?? '',
-            'category' => $this->category ?? '',
+            'category' => is_array($this->category)
+                ? implode(', ', $this->category)
+                : (string) $this->category,
         ];
     }
 }
