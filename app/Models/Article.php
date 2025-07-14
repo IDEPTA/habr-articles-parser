@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Builder;
 use Laravel\Scout\Searchable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
@@ -19,11 +21,12 @@ class Article extends Model
         'published_at'
     ];
 
+    // Доделать поиск по нескольким моделям, поиск по не полным словам
     public function toSearchableArray(): array
     {
         return [
             'title' => $this->title ?? '',
-            'content' => $this->content ?? '',
+            // 'content' => $this->content ?? '',
             'category' => is_array($this->category)
                 ? implode(', ', $this->category)
                 : (string) $this->category,

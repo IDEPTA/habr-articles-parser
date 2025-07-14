@@ -14,7 +14,7 @@ class ArticlesController extends Controller
     public function __invoke(SearchRequest $request)
     {
         $searchKey = $request['search'];
-        $results = Article::search($searchKey)->get();
+        $results = Article::search($searchKey . '~')->get();
 
         return response()->json($results);
     }
