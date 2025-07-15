@@ -20,10 +20,14 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Установка рабочего каталога
 WORKDIR /var/www/html
 
-# Устанавливаем зависимости Laravel
+# Копируем проект полностью
 COPY . .
 
+# Устанавливаем зависимости Laravel
 RUN composer install --no-dev --optimize-autoloader
+
+# Открываем порт
+EXPOSE 8000
 
 # Запуск Laravel
 CMD php artisan serve --host=0.0.0.0 --port=8000
