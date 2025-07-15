@@ -16,13 +16,22 @@ class ArticlesController extends Controller
         $history = [];
         // Формирование поискового запроса
         $searchKey = "*" . $request['search'] . "* OR " . $request['search'] . "~";
-        $results = Article::search($searchKey)->get();
+        $results = Article::search($searchKey)->paginate(10);
+
+        // Сохранение истории поиска в Redis
         if (!Redis::exists('search_history')) {
             $history[] = $request['search'];
+            Redis::set("search_history", json_encode($history));
+        } else {
+            $history = json_decode(Redis::get("search_history"));
+            $history[] = $request['search'];
+            $history = array_unique($history);
+
+            Redis::set("search_history", json_encode($history));
         }
 
         return response()->json([
-            "cash count" => Redis::get('search_history'),
+            "history" => json_decode(Redis::get('search_history')),
             "results" => $results
         ]);
     }
