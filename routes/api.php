@@ -14,5 +14,5 @@ Route::controller(RedisController::class)->prefix('redis')->group(function () {
     Route::post('/create', 'saveToRedis');
     Route::post('/', 'getFromRedis');
     Route::post('/delete', 'deleteFromRedis');
-    // Route::post('/create', 'RedisController@saveToRedis');
+    Route::get('/clear', 'clearRedis');
 });
