@@ -35,6 +35,6 @@ class ArticlesController extends Controller
         return response()->json([
             "history" => $history,
             "results" => $results
-        ]);
+        ])->header('Cache-Control', 'public, max-age=60');;
     }
 }

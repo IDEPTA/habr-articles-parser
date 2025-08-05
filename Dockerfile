@@ -10,9 +10,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libmemcached-dev \
     && docker-php-ext-install pdo pdo_pgsql mbstring zip \
     && pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis \
+    && pecl install memcached \
+    && docker-php-ext-enable memcached
 
 # Установка Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
