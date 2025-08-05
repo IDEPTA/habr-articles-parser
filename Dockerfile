@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     libmemcached-dev \
+    zlib1g-dev \
+    libssl-dev \
+    libevent-dev \
     && docker-php-ext-install pdo pdo_pgsql mbstring zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
